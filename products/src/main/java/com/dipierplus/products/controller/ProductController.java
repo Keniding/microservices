@@ -1,13 +1,15 @@
 package com.dipierplus.products.controller;
 
 import com.dipierplus.products.dto.*;
+import com.dipierplus.products.exception.ProductNotFoundException;
+import com.dipierplus.products.exception.ProductNotUpdateException;
 import com.dipierplus.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 
 @RequiredArgsConstructor
 @RestController
@@ -35,9 +37,15 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public void updateProduct(@PathVariable String id, @RequestBody ProductRequest productRequest) {
-        productService.updateProduct(id, productRequest);
+    public ResponseEntity<String> updateProduct(@PathVariable String id, @RequestBody ProductRequest productRequest) {
+        try {
+            productService.updateProduct(id, productRequest);
+            return ResponseEntity.ok("Product updated successfully");
+        } catch (ProductNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (ProductNotUpdateException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

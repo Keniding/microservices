@@ -1,6 +1,8 @@
 package com.dipierplus.products.service;
 
 import com.dipierplus.products.dto.*;
+import com.dipierplus.products.exception.ProductNotFoundException;
+import com.dipierplus.products.exception.ProductNotUpdateException;
 import com.dipierplus.products.model.Product;
 import com.dipierplus.products.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class ProductService {
         Product product = Product.builder()
                 .name(productRequest.getName())
                 .description(productRequest.getDescription())
+                .stock(productRequest.getStock())
                 .price(productRequest.getPrice())
                 .build();
         productRepository.save(product);
@@ -37,13 +40,14 @@ public class ProductService {
         Optional<Product> product = productRepository.findById(id);
         if (product.isEmpty()){
             log.info("Product dont found {}", id);
-            return null;
+            throw new ProductNotFoundException(id);
         }
 
         return ProductResponse.builder()
                 .id(product.get().getId())
                 .name(product.get().getName())
                 .description(product.get().getDescription())
+                .stock(product.get().getStock())
                 .price(product.get().getPrice())
                 .build();
     }
@@ -53,20 +57,22 @@ public class ProductService {
                 .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
+                .stock(product.getStock())
                 .price(product.getPrice())
                 .build();
     }
 
     public void updateProduct(String id, ProductRequest productRequest) {
         if (getProduct(id) == null) {
-            log.info("Error Update {}", id);
-            return;
+            log.error("Error update {}", id);
+            throw new ProductNotUpdateException(id);
         }
 
         Product product = Product.builder()
                 .id(id)
                 .name(productRequest.getName())
                 .description(productRequest.getDescription())
+                .stock(productRequest.getStock())
                 .price(productRequest.getPrice())
                 .build();
 
@@ -75,8 +81,8 @@ public class ProductService {
 
     public void deleteProduct(String id) {
         if (getProduct(id) == null) {
-            log.info("Error delete {}", id);
-            return;
+            log.error("Error delete {}", id);
+            throw new ProductNotFoundException(id);
         }
 
         productRepository.deleteById(id);
