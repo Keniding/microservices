@@ -1,8 +1,7 @@
 package com.dipierplus.products.controller;
 
 import com.dipierplus.products.dto.*;
-import com.dipierplus.products.exception.ProductNotFoundException;
-import com.dipierplus.products.exception.ProductNotUpdateException;
+import com.dipierplus.products.exception.*;
 import com.dipierplus.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -52,5 +51,16 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public void deleteProduct(@PathVariable String id) {
         productService.deleteProduct(id);
+    }
+
+    @PatchMapping("/{id}/stock/{quantity}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<String>  updateStock(@PathVariable String id, @PathVariable Integer quantity) {
+        try {
+            productService.updateStock(id, quantity);
+            return ResponseEntity.ok("Product stock updated successfully");
+        } catch (ProductInsufficientException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
     }
 }

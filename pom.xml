@@ -17,6 +17,8 @@
 	<packaging>pom</packaging><url/>
 	<modules>
 		<module>products</module>
+		<module>categories</module>
+		<module>inventory</module>
 	</modules>
 
 	<properties>

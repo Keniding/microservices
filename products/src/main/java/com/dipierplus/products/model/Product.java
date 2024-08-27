@@ -2,9 +2,11 @@ package com.dipierplus.products.model;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 @Document(value = "product")
 @AllArgsConstructor
@@ -16,7 +18,10 @@ public class Product {
     private String id;
     private String name;
     private String description;
+    private String skuCode;
     private Integer stock;
     private BigDecimal price;
 
+    @DBRef
+    private ArrayList<Category> categories;
 }

@@ -1,8 +1,10 @@
 package com.dipierplus.products.dto;
 
+import com.dipierplus.products.model.Category;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 @Data
 @Builder
@@ -14,4 +16,5 @@ public class ProductResponse {
     private String description;
     private Integer stock;
     private BigDecimal price;
+    private ArrayList<Category> categories;
 }
