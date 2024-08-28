@@ -2,7 +2,9 @@ package com.dipierplus.inventory.service;
 
 import com.dipierplus.inventory.model.Inventory;
 import com.dipierplus.inventory.repository.InventoryRepository;
+import com.dipierplus.inventory.util.ProductCreatedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,6 +12,11 @@ import org.springframework.stereotype.Service;
 public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
+
+    @RabbitListener(queues = "productQueue")
+    public void handleProductCreated(ProductCreatedEvent event) {
+        createInventoryForNewProduct(event.getSkuCode());
+    }
 
     public boolean isInStock(String skuCode) {
         return inventoryRepository.findBySkuCode(skuCode)
@@ -31,6 +38,11 @@ public class InventoryService {
             throw new IllegalStateException("Stock insuficiente");
         }
         inventory.setQuantity(inventory.getQuantity() - quantity);
+        inventoryRepository.save(inventory);
+    }
+
+    private void createInventoryForNewProduct(String skuCode) {
+        Inventory inventory = new Inventory(skuCode, 0);
         inventoryRepository.save(inventory);
     }
 }

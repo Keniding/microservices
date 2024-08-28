@@ -8,7 +8,9 @@ import com.dipierplus.products.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +22,9 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public void createProduct(@NotNull ProductRequest productRequest){
+    private final RabbitTemplate rabbitTemplate;
+
+    public void createProduct(@NotNull ProductRequest productRequest) {
         Product product = Product.builder()
                 .name(productRequest.getName())
                 .description(productRequest.getDescription())
@@ -29,7 +33,10 @@ public class ProductService {
                 .categories(productRequest.getCategories())
                 .build();
         productRepository.save(product);
-        log.info("Product {} is save", product.getId());
+        log.info("Product {} is saved", product.getId());
+
+        ProductCreatedEvent eventDTO = new ProductCreatedEvent(product.getSkuCode());
+        rabbitTemplate.convertAndSend("appExchange", "product.created", eventDTO);
     }
 
     public List<ProductResponse> getAllProducts() {

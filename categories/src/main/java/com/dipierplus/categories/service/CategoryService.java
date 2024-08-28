@@ -6,7 +6,6 @@ import com.dipierplus.categories.model.Category;
 import com.dipierplus.categories.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public void createCategory(@NotNull CategoryRequest productRequest){
+    public void createCategory(CategoryRequest productRequest){
         Category product = Category.builder()
                 .name(productRequest.getName())
                 .build();
@@ -32,7 +31,7 @@ public class CategoryService {
         return products.stream().map(this::mapToCategoryResponse).toList();
     }
 
-    private CategoryResponse mapToCategoryResponse(@NotNull Category category) {
+    private CategoryResponse mapToCategoryResponse(Category category) {
         return CategoryResponse.builder()
                 .id(category.getId())
                 .name(category.getName())
