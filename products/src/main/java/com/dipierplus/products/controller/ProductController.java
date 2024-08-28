@@ -53,6 +53,13 @@ public class ProductController {
         productService.deleteProduct(id);
     }
 
+    @GetMapping("/sku/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ProductResponse getProductBySkuCode(@PathVariable String id) {
+        return productService.getProductBySkuCode(id);
+    }
+
+    /*
     @PatchMapping("/{id}/stock/{quantity}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String>  updateStock(@PathVariable String id, @PathVariable Integer quantity) {
@@ -63,4 +70,6 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         }
     }
+
+     */
 }

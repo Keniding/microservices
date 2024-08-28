@@ -13,6 +13,6 @@ import java.util.ArrayList;
 public class ProductRequest {
     private String name;
     private String description;
-    private Integer stock;
+    private String skuCode;
     private BigDecimal price;private ArrayList<Category> categories;
 }

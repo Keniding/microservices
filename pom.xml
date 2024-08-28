@@ -19,6 +19,7 @@
 		<module>products</module>
 		<module>categories</module>
 		<module>inventory</module>
+		<module>rabbitmq</module>
 	</modules>
 
 	<properties>

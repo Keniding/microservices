@@ -1,7 +1,6 @@
 package com.dipierplus.products.service;
 
 import com.dipierplus.products.dto.*;
-import com.dipierplus.products.exception.ProductInsufficientException;
 import com.dipierplus.products.exception.ProductNotFoundException;
 import com.dipierplus.products.exception.ProductNotUpdateException;
 import com.dipierplus.products.model.Product;
@@ -25,7 +24,7 @@ public class ProductService {
         Product product = Product.builder()
                 .name(productRequest.getName())
                 .description(productRequest.getDescription())
-                .stock(productRequest.getStock())
+                .skuCode(productRequest.getSkuCode())
                 .price(productRequest.getPrice())
                 .categories(productRequest.getCategories())
                 .build();
@@ -38,8 +37,7 @@ public class ProductService {
         return products.stream().map(this::mapToProductResponse).toList();
     }
 
-    public ProductResponse getProduct(String id) {
-        Optional<Product> product = productRepository.findById(id);
+    private ProductResponse foundProduct(String id, @NotNull Optional<Product> product) {
         if (product.isEmpty()){
             log.info("Product dont found {}", id);
             throw new ProductNotFoundException(id);
@@ -49,10 +47,15 @@ public class ProductService {
                 .id(product.get().getId())
                 .name(product.get().getName())
                 .description(product.get().getDescription())
-                .stock(product.get().getStock())
                 .price(product.get().getPrice())
+                .skuCode(product.get().getSkuCode())
                 .categories(product.get().getCategories())
                 .build();
+    }
+
+    public ProductResponse getProduct(String id) {
+        Optional<Product> product = productRepository.findById(id);
+        return foundProduct(id, product);
     }
 
     private ProductResponse mapToProductResponse(@NotNull Product product) {
@@ -60,8 +63,8 @@ public class ProductService {
                 .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
-                .stock(product.getStock())
                 .price(product.getPrice())
+                .skuCode(product.getSkuCode())
                 .categories(product.getCategories())
                 .build();
     }
@@ -76,8 +79,8 @@ public class ProductService {
                     .id(id)
                     .name(productRequest.getName())
                     .description(productRequest.getDescription())
-                    .stock(productRequest.getStock())
                     .price(productRequest.getPrice())
+                    .skuCode(productRequest.getSkuCode())
                     .categories(productRequest.getCategories())
                     .build();
 
@@ -102,6 +105,12 @@ public class ProductService {
         }
     }
 
+    public ProductResponse getProductBySkuCode(String id) {
+        Optional<Product> product = productRepository.findBySkuCode(id);
+        return foundProduct(id, product);
+    }
+
+/*
     public void updateStock(String id, int quantity) {
         ProductResponse existingProduct = getProduct(id);
 
@@ -137,11 +146,11 @@ public class ProductService {
                 .id(existingProduct.getId())
                 .name(existingProduct.getName())
                 .description(existingProduct.getDescription())
-                .stock(newStock)
                 .price(existingProduct.getPrice())
                 .categories(existingProduct.getCategories())
                 .build();
 
         productRepository.save(product);
     }
+    */
 }

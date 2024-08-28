@@ -19,7 +19,6 @@ public class Product {
     private String name;
     private String description;
     private String skuCode;
-    private Integer stock;
     private BigDecimal price;
 
     @DBRef
