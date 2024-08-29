@@ -2,12 +2,14 @@ package com.dipierplus.products.controller;
 
 import com.dipierplus.products.dto.*;
 import com.dipierplus.products.exception.*;
+import com.dipierplus.products.model.Category;
 import com.dipierplus.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -59,17 +61,14 @@ public class ProductController {
         return productService.getProductBySkuCode(id);
     }
 
-    /*
-    @PatchMapping("/{id}/stock/{quantity}")
+    @PostMapping("/category/{id}/remove")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String>  updateStock(@PathVariable String id, @PathVariable Integer quantity) {
+    public ResponseEntity<String> modificationCategory(@PathVariable String id, @RequestBody ArrayList<Category> request) {
         try {
-            productService.updateStock(id, quantity);
-            return ResponseEntity.ok("Product stock updated successfully");
-        } catch (ProductInsufficientException ex) {
+            productService.modificationCategory(id, request);
+            return ResponseEntity.ok("Product Category updated successfully");
+        } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         }
     }
-
-     */
 }

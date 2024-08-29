@@ -3,6 +3,7 @@ package com.dipierplus.products.service;
 import com.dipierplus.products.dto.*;
 import com.dipierplus.products.exception.ProductNotFoundException;
 import com.dipierplus.products.exception.ProductNotUpdateException;
+import com.dipierplus.products.model.Category;
 import com.dipierplus.products.model.Product;
 import com.dipierplus.products.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,10 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +47,7 @@ public class ProductService {
     }
 
     private ProductResponse foundProduct(String id, @NotNull Optional<Product> product) {
-        if (product.isEmpty()){
+        if (product.isEmpty()) {
             log.info("Product dont found {}", id);
             throw new ProductNotFoundException(id);
         }
@@ -107,7 +109,7 @@ public class ProductService {
 
         try {
             productRepository.deleteById(id);
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error delete {}", id);
         }
     }
@@ -117,47 +119,32 @@ public class ProductService {
         return foundProduct(id, product);
     }
 
-/*
-    public void updateStock(String id, int quantity) {
-        ProductResponse existingProduct = getProduct(id);
+    public void modificationCategory(String id, ArrayList<Category> categoriesToRemove) {
+        ProductResponse product = getProduct(id);
 
-        if (existingProduct == null) {
-            log.error("Error: product ID {} not found", id);
+        if (product == null) {
+            log.error("Error modification null {}", id);
             return;
         }
 
         try {
-            int currentStock = existingProduct.getStock();
-            int newStock = calculateNewStock(currentStock, quantity);
+            List<Category> updatedCategories = product.getCategories().stream()
+                    .filter(category -> categoriesToRemove.stream().noneMatch(c -> c.getId().equals(category.getId())))
+                    .collect(Collectors.toList());
 
-            if (newStock < 0) {
-                log.error("Error: insufficient stock for product ID {}", id);
-                throw new ProductInsufficientException(id);
-            }
+            Product updatedProduct = Product.builder()
+                    .id(id)
+                    .name(product.getName())
+                    .description(product.getDescription())
+                    .price(product.getPrice())
+                    .skuCode(product.getSkuCode())
+                    .categories((ArrayList<Category>) updatedCategories)
+                    .build();
 
-            updateProductStock(existingProduct, newStock);
-            log.info("Updated stock for product ID {}: new stock = {}", id, newStock);
-        } catch (ProductInsufficientException e) {
-            throw new ProductInsufficientException(id);
+            productRepository.save(updatedProduct);
         } catch (Exception e) {
-            log.error("Error updating stock for product ID {}: {}", id, e.getMessage());
+            log.error("Error remove Category {}", id);
+            throw new ProductNotUpdateException(id);
         }
     }
-
-    private int calculateNewStock(int currentStock, int quantity) {
-        return currentStock - quantity;
-    }
-
-    private void updateProductStock(@NotNull ProductResponse existingProduct, int newStock) {
-        Product product = Product.builder()
-                .id(existingProduct.getId())
-                .name(existingProduct.getName())
-                .description(existingProduct.getDescription())
-                .price(existingProduct.getPrice())
-                .categories(existingProduct.getCategories())
-                .build();
-
-        productRepository.save(product);
-    }
-    */
 }
