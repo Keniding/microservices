@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class InventoryService {
@@ -26,6 +29,10 @@ public class InventoryService {
         return inventoryRepository.findBySkuCode(skuCode)
                 .map(inventory -> inventory.getQuantity() > 0)
                 .orElse(false);
+    }
+
+    public Optional<Inventory> getInventory(String skuCode) {
+        return inventoryRepository.findBySkuCode(skuCode);
     }
 
     public void increaseStock(String skuCode, int quantity) {
@@ -57,5 +64,9 @@ public class InventoryService {
                             logger.info("Nuevo inventario creado para SKU: {} con cantidad inicial 0", skuCode);
                         }
                 );
+    }
+
+    public List<Inventory> getLowStockInventory(int quantity) {
+        return inventoryRepository.findByQuantityLessThan(quantity);
     }
 }
