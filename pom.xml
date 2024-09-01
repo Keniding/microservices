@@ -16,8 +16,9 @@
 	<description>Implementación de un sistema web bajo microservicios para automatizar procesos de la organización Dipier S.A. en el rubro de ventas de productos farmacéuticos.</description>
 	<packaging>pom</packaging><url/>
 	<modules>
-		<module>products</module>
+		<module>customers</module>
 		<module>categories</module>
+		<module>products</module>
 		<module>inventory</module>
 		<module>rabbitmq</module>
 	</modules>
