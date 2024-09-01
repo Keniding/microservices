@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="categories" />
+        <module name="customers" />
         <module name="inventory" />
         <module name="rabbitmq" />
         <module name="products" />
@@ -17,6 +18,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="categories" options="-parameters" />
+      <module name="customers" options="-parameters" />
       <module name="inventory" options="-parameters" />
       <module name="microservices" options="-parameters" />
       <module name="products" options="-parameters" />
