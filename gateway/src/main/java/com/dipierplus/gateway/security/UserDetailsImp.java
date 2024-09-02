@@ -1,18 +1,16 @@
-package com.dipierplus.users.service;
-/*
-import com.dipierplus.users.model.User;
+package com.dipierplus.gateway.security;
+
+import com.dipierplus.gateway.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+
 @AllArgsConstructor
-*/
-public class UserDetailsImp
-        //implements UserDetails
-{
-/*
+public class UserDetailsImp implements UserDetails {
+
     private final User user;
 
     @Override
@@ -49,10 +47,4 @@ public class UserDetailsImp
     public boolean isEnabled() {
         return true;
     }
-
-    public String getEmail() {
-        return user.getEmail();
-    }
-
- */
 }

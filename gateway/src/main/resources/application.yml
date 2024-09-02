@@ -1,0 +1,29 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: product-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/product/**
+        - id: category-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/category/**
+        - id: inventory-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/inventory/**
+        - id: message-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/messages/**
+        - id: customer-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/customer/**
+        - id: user-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/user/**
+

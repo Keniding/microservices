@@ -22,6 +22,7 @@
 		<module>products</module>
 		<module>inventory</module>
 		<module>rabbitmq</module>
+		<module>gateway</module>
 	</modules>
 
 	<properties>

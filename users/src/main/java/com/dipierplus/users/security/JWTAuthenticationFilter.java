@@ -1,5 +1,6 @@
 package com.dipierplus.users.security;
 
+/*
 import com.dipierplus.users.service.UserDetailsImp;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -15,8 +16,12 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.logging.*;
 
-public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+ */
 
+public class JWTAuthenticationFilter
+        //extends UsernamePasswordAuthenticationFilter
+{
+/*
     private static final Logger LOGGER = Logger.getLogger(JWTAuthenticationFilter.class.getName());
 
     @Override
@@ -72,5 +77,5 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.getWriter().flush();
     }
 
-
+ */
 }
