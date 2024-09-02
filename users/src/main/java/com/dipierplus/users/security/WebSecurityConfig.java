@@ -1,5 +1,6 @@
 package com.dipierplus.users.security;
 
+/*
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,15 +18,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class WebSecurityConfig {
 
+ */
+public class WebSecurityConfig {
+/*
     private final JWTAuthorizationFilter jwtAuthorizationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
         JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter();
         jwtAuthenticationFilter.setAuthenticationManager(authManager);
-        jwtAuthenticationFilter.setFilterProcessesUrl("/login");
+        jwtAuthenticationFilter.setFilterProcessesUrl("/api/user/login");
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -53,4 +56,6 @@ public class WebSecurityConfig {
         System.out.println("pass: " + new BCryptPasswordEncoder().encode("henry"));
     }
 
+
+ */
 }

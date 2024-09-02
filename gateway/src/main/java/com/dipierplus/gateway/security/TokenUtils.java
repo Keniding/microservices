@@ -1,26 +1,27 @@
-package com.dipierplus.users.security;
+package com.dipierplus.gateway.security;
 
-/*
-import com.dipierplus.users.service.UserDetailsImp;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
 import java.security.Key;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
-
- */
 public class TokenUtils {
 
-    /*
     private static final Long ACCESS_TOKEN_VALIDITY_SECONDS = 2_592_000L;
     private static final Key SIGNINGKEY = generateRandomKey();
 
     private static Key generateRandomKey() {
-        return Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
+        return Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
 
     public static String createAccessToken(UserDetailsImp user) {
@@ -62,6 +63,4 @@ public class TokenUtils {
             return null;
         }
     }
-
-     */
 }

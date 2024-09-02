@@ -1,5 +1,6 @@
 package com.dipierplus.users.service;
 
+/*
 import com.dipierplus.users.model.User;
 import com.dipierplus.users.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -10,8 +11,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class UserDetailServiceImpl implements UserDetailsService {
 
+ */
+public class UserDetailServiceImpl
+        //implements UserDetailsService
+{
+/*
     private final UserRepository userRepository;
 
     @Override
@@ -23,4 +28,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
         return new UserDetailsImp(user);
     }
+
+ */
 }

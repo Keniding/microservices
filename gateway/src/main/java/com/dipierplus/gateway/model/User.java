@@ -1,33 +1,34 @@
-package com.dipierplus.users.service;
-/*
-import com.dipierplus.users.model.User;
-import lombok.AllArgsConstructor;
+package com.dipierplus.gateway.model;
+
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
-@AllArgsConstructor
-*/
-public class UserDetailsImp
-        //implements UserDetails
-{
-/*
-    private final User user;
+import java.util.List;
+
+@Document("users")
+@Data
+public class User implements UserDetails {
+    private String username;
+    private String password;
+    private boolean active;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return username;
     }
 
     @Override
@@ -47,12 +48,6 @@ public class UserDetailsImp
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return active;
     }
-
-    public String getEmail() {
-        return user.getEmail();
-    }
-
- */
 }
