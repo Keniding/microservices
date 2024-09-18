@@ -41,11 +41,11 @@ public class TokenUtils {
     }
 
     public static UsernamePasswordAuthenticationToken getAuthenticationToken(String token) {
-        try {
-            if (token == null || token.isEmpty()) {
-                throw new IllegalArgumentException("Token is null or empty");
-            }
+        if (token == null || token.isEmpty()) {
+            throw new IllegalArgumentException("Token is null or empty");
+        }
 
+        try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(SIGNINGKEY)
                     .build()
@@ -54,13 +54,15 @@ public class TokenUtils {
 
             String username = claims.getSubject();
 
+            if (username == null || username.isEmpty()) {
+                throw new JwtException("JWT token does not contain a valid subject");
+            }
+
             return new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
+
         } catch (JwtException e) {
             System.err.println("Invalid JWT token: " + e.getMessage());
-            return null;
-        } catch (IllegalArgumentException e) {
-            System.err.println("Token is null or empty: " + e.getMessage());
-            return null;
+            throw e;
         }
     }
 }
