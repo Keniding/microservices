@@ -20,19 +20,25 @@ public class JWTAuthorizationWebFilter implements WebFilter {
 
     @Override
     public @NonNull Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        return Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION))
-                .filter(bearerToken -> bearerToken.startsWith(BEARER_PREFIX))
-                .map(bearerToken -> bearerToken.substring(BEARER_PREFIX.length()))
-                .flatMap(token -> {
-                    UsernamePasswordAuthenticationToken authentication = TokenUtils.getAuthenticationToken(token);
-                    if (authentication != null) {
-                        return chain.filter(exchange)
-                                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(new SecurityContextImpl(authentication))));
-                    } else {
-                        log.warn("Token inválido");
-                        return chain.filter(exchange);
-                    }
-                })
-                .switchIfEmpty(chain.filter(exchange));
+        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+            String token = authHeader.substring(BEARER_PREFIX.length());
+            return validateAndSetContext(token)
+                    .flatMap(authentication -> {
+                        if (authentication != null) {
+                            return chain.filter(exchange)
+                                    .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(
+                                            Mono.just(new SecurityContextImpl(authentication))));
+                        } else {
+                            log.warn("Token inválido");
+                            return chain.filter(exchange);
+                        }
+                    });
+        }
+        return chain.filter(exchange);
+    }
+
+    private Mono<UsernamePasswordAuthenticationToken> validateAndSetContext(String token) {
+        return Mono.fromCallable(() -> TokenUtils.getAuthenticationToken(token));
     }
 }

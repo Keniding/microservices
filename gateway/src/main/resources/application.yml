@@ -26,4 +26,3 @@ spring:
           uri: http://localhost:8086
           predicates:
             - Path=/api/user/**
-
