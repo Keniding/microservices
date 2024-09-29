@@ -57,6 +57,7 @@ public class WebSecurityConfig {
         return new CorsWebFilter(source);
     }
 
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
