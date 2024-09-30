@@ -17,6 +17,12 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
+    @GetMapping
+    public ResponseEntity<?> getAllInventory() {
+        List<Inventory> list = inventoryService.getListInventory();
+        return ResponseEntity.ok(list);
+    }
+
     @PostMapping()
     public ResponseEntity<String> createOrUpdateInventory(@RequestParam String skuCode) {
         try {

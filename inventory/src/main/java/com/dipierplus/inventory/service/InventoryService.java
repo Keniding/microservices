@@ -25,6 +25,10 @@ public class InventoryService {
         createOrUpdateInventory(event.getSkuCode());
     }
 
+    public List<Inventory> getListInventory() {
+        return inventoryRepository.findAll();
+    }
+
     public boolean isInStock(String skuCode) {
         return inventoryRepository.findBySkuCode(skuCode)
                 .map(inventory -> inventory.getQuantity() > 0)
