@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="carts" />
+        <module name="payment" />
         <module name="categories" />
         <module name="customers" />
         <module name="inventory" />
@@ -29,6 +30,7 @@
       <module name="gateway" options="-parameters" />
       <module name="inventory" options="-parameters" />
       <module name="microservices" options="-parameters" />
+      <module name="payment" options="-parameters" />
       <module name="products" options="-parameters" />
       <module name="rabbitmq" options="-parameters" />
       <module name="users" options="-parameters" />

@@ -27,6 +27,7 @@
 
 		<!-- Carrito -->
 		<module>carts</module>
+		<module>payment</module>
 	</modules>
 
 	<properties>
