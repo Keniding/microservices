@@ -22,12 +22,15 @@
 		<module>categories</module>
 		<module>products</module>
 		<module>inventory</module>
+
+		<!-- util -->
 		<module>rabbitmq</module>
 		<module>gateway</module>
 
 		<!-- Carrito -->
 		<module>carts</module>
 		<module>payment</module>
+		<module>invoice</module>
 	</modules>
 
 	<properties>

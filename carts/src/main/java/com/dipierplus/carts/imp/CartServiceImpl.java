@@ -1,5 +1,7 @@
 package com.dipierplus.carts.imp;
 
+import com.dipierplus.carts.event.BillingPriceTotalRequestEvent;
+import com.dipierplus.carts.event.BillingPriceTotalResponseEvent;
 import com.dipierplus.carts.event.ProductPriceRequestEvent;
 import com.dipierplus.carts.event.ProductPriceResponseEvent;
 import com.dipierplus.carts.model.Cart;
@@ -171,12 +173,29 @@ public class CartServiceImpl implements CartService {
             if (response.getPrice() != null) {
                 priceFuture.complete(response.getPrice());
             } else {
-                System.err.println("El precio es null para el producto: " + response.getProductId());
+                System.err.println(STR."El precio es null para el producto: \{response.getProductId()}");
                 priceFuture.complete(BigDecimal.ZERO); // O manejar de otra forma
             }
         } else {
-            System.err.println("No se encontró el future para el producto: " + response.getProductId());
+            System.err.println(STR."No se encontró el future para el producto: \{response.getProductId()}");
         }
+    }
+
+    @RabbitListener(queues = "billingQueue")
+    public void handlePriceRequest(BillingPriceTotalRequestEvent request) {
+        Cart cart = getCartById(request.getCartId());
+
+        BillingPriceTotalResponseEvent response = new BillingPriceTotalResponseEvent(
+                request.getCartId(),
+                cart.getCustomerId(),
+                getCartTotal(cart.getCustomerId())
+        );
+        rabbitTemplate.convertAndSend("appExchange", "billing.cart", response);
+    }
+
+    private Cart getCartById(String cartId) {
+        return cartRepository.findById(cartId)
+                .orElse(null);
     }
 
     private Cart getOrCreateCart(String customerId) {
@@ -189,5 +208,4 @@ public class CartServiceImpl implements CartService {
                     return newCart;
                 });
     }
-
 }
