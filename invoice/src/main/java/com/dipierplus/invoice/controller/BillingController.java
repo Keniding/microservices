@@ -17,21 +17,18 @@ public class BillingController {
 
     private final BillingService billingService;
 
-    // Endpoint para obtener todas las facturas de un cliente
     @GetMapping("/invoices/{customerId}")
     public ResponseEntity<ArrayList<Invoice>> getAllInvoices(@PathVariable String customerId) {
         ArrayList<Invoice> invoices = billingService.getAllInvoices(customerId);
         return new ResponseEntity<>(invoices, HttpStatus.OK);
     }
 
-    // Endpoint para crear una nueva factura
     @PostMapping("/invoice")
     public ResponseEntity<Invoice> createInvoice(@RequestBody Invoice invoice) {
         Invoice createdInvoice = billingService.createInvoice(invoice);
         return new ResponseEntity<>(createdInvoice, HttpStatus.CREATED);
     }
 
-    // Endpoint para obtener una factura por ID
     @GetMapping("/invoice/{id}")
     public ResponseEntity<Invoice> getInvoice(@PathVariable String id) {
         try {
@@ -42,7 +39,6 @@ public class BillingController {
         }
     }
 
-    // Endpoint para actualizar una factura existente
     @PutMapping("/invoice")
     public ResponseEntity<Invoice> updateInvoice(@RequestBody Invoice invoice) {
         try {
@@ -53,7 +49,6 @@ public class BillingController {
         }
     }
 
-    // Endpoint para eliminar una factura por ID
     @DeleteMapping("/invoice/{id}")
     public ResponseEntity<Void> deleteInvoice(@PathVariable String id) {
         try {
@@ -74,5 +69,4 @@ public class BillingController {
                     .body(STR."Error initiating invoice processing: \{e.getMessage()}");
         }
     }
-
 }

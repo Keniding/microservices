@@ -1,6 +1,5 @@
 package com.dipierplus.invoice.impl;
 
-import com.dipierplus.invoice.dto.PaymentDTO;
 import com.dipierplus.invoice.event.BillingPriceTotalRequestEvent;
 import com.dipierplus.invoice.event.BillingPriceTotalResponseEvent;
 import com.dipierplus.invoice.event.PaymentCompletedEvent;
@@ -10,6 +9,8 @@ import com.dipierplus.invoice.repository.InvoiceRepository;
 import com.dipierplus.invoice.repository.PaymentHistoryRepository;
 import com.dipierplus.invoice.service.BillingService;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -19,14 +20,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @AllArgsConstructor
 public class BillingServiceImp implements BillingService {
 
+    private static final Logger logger = LoggerFactory.getLogger(BillingServiceImp.class);
+
     private final InvoiceRepository invoiceRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final ConcurrentHashMap<String, CompletableFuture<BigDecimal>> priceListeners = new ConcurrentHashMap<>();
 
     @Override
     public ArrayList<Invoice> getAllInvoices(String customerId) {
@@ -66,37 +72,62 @@ public class BillingServiceImp implements BillingService {
         invoiceRepository.deleteById(id);
     }
 
+    private void rabbitEventGetPriceTotal(String customerId) {
+        CompletableFuture<BigDecimal> priceFuture = new CompletableFuture<>();
+        BillingPriceTotalRequestEvent event = new BillingPriceTotalRequestEvent(customerId);
+        rabbitTemplate.convertAndSend("appExchange", "billing.cart", event);
+
+        priceListeners.put(customerId, priceFuture);
+    }
+
     @RabbitListener(queues = "billingQueue")
-    public void handleCartTotalResponse(BillingPriceTotalResponseEvent responseEvent) {
-        BigDecimal cartTotal = BigDecimal.valueOf(responseEvent.getTotal());
+    public void handleCartTotalResponse(BillingPriceTotalResponseEvent response) {
+        String cartId = response.getCartId();
+        double total = response.getTotal();
 
-        System.out.println("Total recibido del carrito: " + cartTotal);
+        if (total != 0) {
+            try {
+                BigDecimal cartTotal = BigDecimal.valueOf(total);
 
-        if (cartTotal.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("El total del carrito es inválido.");
+                if (cartTotal.compareTo(BigDecimal.ZERO) <= 0) {
+                    logger.warn("El total del carrito es inválido: {}", cartTotal);
+                    return;
+                }
+
+                logger.info("Total recibido del carrito: {}", cartTotal);
+
+                Invoice invoice = new Invoice();
+                invoice.setCustomerId(response.getCustomerId());
+                invoice.setTotalAmount(cartTotal);
+                invoice.setPaymentDate(LocalDateTime.now());
+                invoice.setStatus("PAGADO");
+                invoiceRepository.save(invoice);
+
+                PaymentHistory paymentHistory = new PaymentHistory();
+                paymentHistory.setInvoiceId(invoice.getId());
+                paymentHistory.setAmount(cartTotal);
+                paymentHistory.setPaymentDate(LocalDateTime.now());
+                paymentHistoryRepository.save(paymentHistory);
+
+                PaymentCompletedEvent completedEvent = new PaymentCompletedEvent(response.getCustomerId(), invoice.getId(), cartTotal);
+                rabbitTemplate.convertAndSend("appExchange", "payment.completed", completedEvent);
+
+            } catch (Exception e) {
+                logger.error("Error al procesar el evento de respuesta del carrito: ", e);
+            }
+        } else {
+            logger.error("Total del carrito es cero o no válido: {}", cartId);
         }
-
-        Invoice invoice = new Invoice();
-        invoice.setCustomerId(responseEvent.getCustomerId());
-        invoice.setTotalAmount(cartTotal);
-        invoice.setPaymentDate(LocalDateTime.now());
-        invoice.setStatus("PAGADO");
-        invoiceRepository.save(invoice);
-
-        PaymentHistory paymentHistory = new PaymentHistory();
-        paymentHistory.setInvoiceId(invoice.getId());
-        paymentHistory.setAmount(cartTotal);
-        paymentHistory.setPaymentDate(LocalDateTime.now());
-        paymentHistoryRepository.save(paymentHistory);
-
-        PaymentCompletedEvent completedEvent = new PaymentCompletedEvent(responseEvent.getCustomerId(), invoice.getId(), cartTotal);
-        rabbitTemplate.convertAndSend("appExchange", "payment.completed", completedEvent);
     }
 
     @Override
     public void calculateAndProcessInvoice(String customerId) {
-        BillingPriceTotalRequestEvent event = new BillingPriceTotalRequestEvent(customerId);
-        rabbitTemplate.convertAndSend("appExchange", "billing.request", event);
-        System.out.println("Request event sent for customer: " + customerId);
+        try {
+            BillingPriceTotalRequestEvent event = new BillingPriceTotalRequestEvent(customerId);
+            rabbitEventGetPriceTotal(event.getCustomerId());
+            logger.info("Request event sent for customer: {}", customerId);
+        } catch (Exception e) {
+            logger.error("Error sending billing request event for carrito: {}", customerId, e);
+        }
     }
 }

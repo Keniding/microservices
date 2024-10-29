@@ -183,18 +183,23 @@ public class CartServiceImpl implements CartService {
 
     @RabbitListener(queues = "billingQueue")
     public void handlePriceRequest(BillingPriceTotalRequestEvent request) {
-        Cart cart = getCartById(request.getCartId());
+        Cart cart = getCartCustomerId(request.getCustomerId());
+        if (cart == null) {
+            System.err.println(STR."No se encontró el carrito para el customerId: \{request.getCustomerId()}");
+            return;
+        }
 
         BillingPriceTotalResponseEvent response = new BillingPriceTotalResponseEvent(
-                request.getCartId(),
+                cart.getId(),
                 cart.getCustomerId(),
                 getCartTotal(cart.getCustomerId())
         );
         rabbitTemplate.convertAndSend("appExchange", "billing.cart", response);
+        System.out.println(STR."Datos: \{response}");
     }
 
-    private Cart getCartById(String cartId) {
-        return cartRepository.findById(cartId)
+    private Cart getCartCustomerId(String cartId) {
+        return cartRepository.findByCustomerId(cartId)
                 .orElse(null);
     }
 

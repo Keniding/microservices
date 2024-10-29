@@ -13,5 +13,5 @@ import java.io.Serializable;
 public class BillingPriceTotalRequestEvent implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private String cartId;
+    private String customerId;
 }

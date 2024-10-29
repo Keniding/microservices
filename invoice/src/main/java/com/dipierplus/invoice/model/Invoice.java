@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Data
 @Document(collection = "invoices")
 public class Invoice {
-
     @Id
     private String id;
     private String customerId;
