@@ -4,7 +4,6 @@ import com.dipierplus.carts.model.Cart;
 import com.dipierplus.carts.model.CartItem;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CartService {
     void addItemToCart(String customerId, CartItem item);

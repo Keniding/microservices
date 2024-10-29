@@ -1,6 +1,5 @@
 package com.dipierplus.invoice.service;
 
-import com.dipierplus.invoice.dto.PaymentDTO;
 import com.dipierplus.invoice.model.Invoice;
 
 import java.util.ArrayList;
