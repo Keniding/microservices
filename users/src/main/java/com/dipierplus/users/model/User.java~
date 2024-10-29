@@ -1,11 +1,9 @@
 package com.dipierplus.users.model;
 
-import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Builder
 @Document("users")
 @Data
 public class User {
