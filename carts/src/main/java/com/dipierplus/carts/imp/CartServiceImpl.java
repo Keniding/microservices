@@ -172,11 +172,11 @@ public class CartServiceImpl implements CartService {
             if (response.getPrice() != null) {
                 priceFuture.complete(response.getPrice());
             } else {
-                System.err.println(STR."El precio es null para el producto: \{response.getProductId()}");
+                System.err.println("El precio es null para el producto: " + response.getProductId());
                 priceFuture.complete(BigDecimal.ZERO); // O manejar de otra forma
             }
         } else {
-            System.err.println(STR."No se encontró el future para el producto: \{response.getProductId()}");
+            System.err.println("No se encontró el future para el producto: "+ response.getProductId());
         }
     }
 
@@ -184,7 +184,7 @@ public class CartServiceImpl implements CartService {
     public void handlePriceRequest(BillingPriceTotalRequestEvent request) {
         Cart cart = getCartCustomerId(request.getCustomerId());
         if (cart == null) {
-            System.err.println(STR."No se encontró el carrito para el customerId: \{request.getCustomerId()}");
+            System.err.println("No se encontró el carrito para el customerId:" + request.getCustomerId());
             return;
         }
 
@@ -194,7 +194,7 @@ public class CartServiceImpl implements CartService {
                 getCartTotal(cart.getCustomerId())
         );
         rabbitTemplate.convertAndSend("appExchange", "billing.cart", response);
-        System.out.println(STR."Datos: \{response}");
+        System.out.println("Datos: " + response);
     }
 
     private Cart getCartCustomerId(String cartId) {

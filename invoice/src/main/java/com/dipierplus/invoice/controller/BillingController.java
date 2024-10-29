@@ -63,10 +63,10 @@ public class BillingController {
     public ResponseEntity<String> processInvoice(@RequestParam String customerId) {
         try {
             billingService.calculateAndProcessInvoice(customerId);
-            return ResponseEntity.ok(STR."Invoice processing initiated for customer: \{customerId}");
+            return ResponseEntity.ok("Invoice processing initiated for customer: " +customerId);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(STR."Error initiating invoice processing: \{e.getMessage()}");
+                    .body("Error initiating invoice processing: " + e.getMessage());
         }
     }
 }
