@@ -1,0 +1,16 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: minio
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+minio:
+  endpoint: http://127.0.0.1:9000
+  accessKey: keniding
+  secretKey: keniding
+  bucket: dipier
