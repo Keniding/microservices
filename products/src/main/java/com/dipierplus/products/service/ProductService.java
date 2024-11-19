@@ -26,7 +26,7 @@ public class ProductService {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public void createProduct(@NotNull ProductRequest productRequest) {
+    public ProductResponse createProduct(@NotNull ProductRequest productRequest) {
         Product product = Product.builder()
                 .name(productRequest.getName())
                 .description(productRequest.getDescription())
@@ -34,11 +34,14 @@ public class ProductService {
                 .price(productRequest.getPrice())
                 .categories(productRequest.getCategories())
                 .build();
-        productRepository.save(product);
-        log.info("Product {} is saved", product.getId());
 
-        ProductCreatedEvent eventDTO = new ProductCreatedEvent(product.getSkuCode());
+        Product savedProduct = productRepository.save(product);
+        log.info("Product {} is saved", savedProduct.getId());
+
+        ProductCreatedEvent eventDTO = new ProductCreatedEvent(savedProduct.getSkuCode());
         rabbitTemplate.convertAndSend("appExchange", "product.created", eventDTO);
+
+        return mapToProductResponse(savedProduct);
     }
 
     public List<ProductResponse> getAllProducts() {
