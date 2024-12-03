@@ -27,6 +27,9 @@
 		<module>rabbitmq</module>
 		<module>gateway</module>
 		<module>minio</module>
+		<module>email</module>
+
+		<module>message</module>
 
 		<!-- Carrito -->
 		<module>carts</module>

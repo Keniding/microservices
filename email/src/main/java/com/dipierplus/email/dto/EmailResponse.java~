@@ -1,0 +1,2 @@
+package com.dipierplus.email.dto;public class EmailResponse {
+}

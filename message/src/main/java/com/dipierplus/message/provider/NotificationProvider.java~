@@ -1,0 +1,61 @@
+package com.dipierplus.message.provider;
+
+import com.dipierplus.message.enums.NotificationStatus;
+import com.dipierplus.message.enums.NotificationType;
+import com.dipierplus.message.model.NotificationRequest;
+import com.dipierplus.message.model.NotificationResponse;
+import jakarta.mail.internet.MimeMessage;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.retry.annotation.CircuitBreaker;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+public interface NotificationProvider {
+    NotificationType getType();
+    NotificationResponse send(NotificationRequest request);
+    boolean isAvailable();
+}
+
+@Service
+@Slf4j
+@AllArgsConstructor
+public class EmailProvider implements NotificationProvider {
+    private final JavaMailSender mailSender;
+    private final CircuitBreaker circuitBreaker;
+
+    @Override
+    public NotificationType getType() {
+        return NotificationType.EMAIL;
+    }
+
+    @Override
+    public NotificationResponse send(NotificationRequest request) {
+        return circuitBreaker.run(() -> {
+            try {
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+                helper.setTo(request.getRecipient());
+                helper.setSubject((String) request.getContent().get("subject"));
+                helper.setText((String) request.getContent().get("body"));
+
+                mailSender.send(message);
+
+                return NotificationResponse.builder()
+                        .id(request.getId())
+                        .status(NotificationStatus.SENT)
+                        .sentAt(LocalDateTime.now())
+                        .build();
+            } catch (Exception e) {
+                log.error("Error sending email", e);
+                throw new NotificationException("Failed to send email", e);
+            }
+        });
+    }
+}
+
+// Similar implementations for SMS and Push providers

@@ -1,0 +1,42 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME:henrykeny2604@gmail.com}
+    password: ${EMAIL_PASSWORD:pxwolieevgaftedh}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            enable: false
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+        transport:
+          protocol: smtp
+        allowed-content-types:
+          - application/pdf
+          - application/msword
+          - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+          - application/vnd.ms-excel
+          - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+          - image/jpeg
+          - image/png
+          - image/gif
+          - text/plain
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: true
+      resolve-lazily: true
+
+logging:
+  level:
+    com.dipierplus.email: DEBUG
+    org.springframework.mail: DEBUG

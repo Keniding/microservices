@@ -1,0 +1,38 @@
+package com.dipierplus.message.queue;
+
+import com.dipierplus.message.config.NotificationConfig;
+import com.dipierplus.message.model.NotificationRequest;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
+@Slf4j
+@AllArgsConstructor
+public class NotificationQueueService {
+    private final RabbitTemplate rabbitTemplate;
+    private final NotificationConfig config;
+
+    public void scheduleNotification(NotificationRequest request) {
+        String routingKey = getRoutingKey(request.getType());
+
+        rabbitTemplate.convertAndSend(
+                config.getQueue().getExchangeName(),
+                routingKey,
+                request,
+                message -> {
+                    message.getMessageProperties().setDelay(
+                            calculateDelay(request.getScheduledAt())
+                    );
+                    return message;
+                }
+        );
+    }
+
+    @RabbitListener(queues = "${notification.queue.name}")
+    public void processNotification(NotificationRequest request) {
+        // Procesar notificación
+    }
+}

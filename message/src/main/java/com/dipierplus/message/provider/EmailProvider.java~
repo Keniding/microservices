@@ -1,0 +1,90 @@
+package com.dipierplus.message.provider;
+
+import com.dipierplus.message.enums.NotificationStatus;
+import com.dipierplus.message.enums.NotificationType;
+import com.dipierplus.message.exception.NotificationException;
+import com.dipierplus.message.model.NotificationRequest;
+import com.dipierplus.message.model.NotificationResponse;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class EmailProvider implements NotificationProvider {
+    private final JavaMailSender mailSender;
+    private final CircuitBreakerFactory circuitBreakerFactory;
+
+    @Value("${notification.email.max-retries}")
+    private int maxRetries;
+
+    @Override
+    public NotificationType getType() {
+        return NotificationType.EMAIL;
+    }
+
+    @Override
+    public NotificationResponse send(NotificationRequest request) {
+        return circuitBreakerFactory.create("emailService").run(() -> {
+            Exception lastException = null;
+            for (int attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    MimeMessage message = mailSender.createMimeMessage();
+                    MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+                    helper.setTo(request.getRecipient());
+                    helper.setSubject((String) request.getContent().get("subject"));
+                    helper.setText((String) request.getContent().get("body"), true);
+
+                    mailSender.send(message);
+                    log.info("Email enviado exitosamente a: {} en el intento {}", request.getRecipient(), attempt);
+
+                    return NotificationResponse.builder()
+                            .id(request.getId())
+                            .status(NotificationStatus.SENT)
+                            .sentAt(LocalDateTime.now())
+                            .build();
+                } catch (Exception e) {
+                    lastException = e;
+                    log.warn("Intento {} fallido al enviar email a {}: {}", attempt, request.getRecipient(), e.getMessage());
+                    if (attempt < maxRetries) {
+                        try {
+                            Thread.sleep(1000 * attempt); // Backoff exponencial simple
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            throw new NotificationException("Interrupted during retry", ie);
+                        }
+                    }
+                }
+            }
+            log.error("Todos los intentos de envío de email fallaron para: {}", request.getRecipient(), lastException);
+            throw new NotificationException("Failed to send email after " + maxRetries + " attempts", lastException);
+        }, throwable -> {
+            log.error("Circuit breaker fallback para email a: {}", request.getRecipient());
+            return NotificationResponse.builder()
+                    .id(request.getId())
+                    .status(NotificationStatus.FAILED)
+                    .sentAt(LocalDateTime.now())
+                    .build();
+        });
+    }
+
+    @Override
+    public boolean isAvailable() {
+        try {
+            mailSender.createMimeMessage();
+            return true;
+        } catch (Exception e) {
+            log.warn("Servicio de email no disponible: {}", e.getMessage());
+            return false;
+        }
+    }
+}

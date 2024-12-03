@@ -1,0 +1,33 @@
+package com.dipierplus.message.template;
+
+import com.dipierplus.message.exception.TemplateNotFoundException;
+import com.dipierplus.message.model.NotificationRequest;
+import com.dipierplus.message.model.Template;
+import com.dipierplus.message.repository.TemplateRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
+
+@Service
+public class TemplateService {
+    private final TemplateRepository templateRepository;
+
+    public NotificationRequest processTemplate(NotificationRequest request) {
+        Template template = templateRepository.findById(
+                (String) request.getContent().get("templateId")
+        ).orElseThrow(() -> new TemplateNotFoundException("Template not found"));
+
+        String processedContent = processTemplateContent(
+                template.getContent(),
+                request.getContent()
+        );
+
+        request.getContent().put("body", processedContent);
+        return request;
+    }
+
+    private String processTemplateContent(String template, Map<String, Object> parameters) {
+        // Implementar procesamiento de template
+        return template;
+    }
+}

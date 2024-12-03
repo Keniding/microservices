@@ -1,0 +1,46 @@
+package com.dipierplus.email.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class EmailRequest {
+    @NotEmpty(message = "El email no puede estar vacío")
+    @Email(message = "El formato del email no es válido",
+            regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
+    private String to;
+
+    @NotEmpty(message = "El asunto no puede estar vacío")
+    @Size(min = 1, max = 100, message = "El asunto debe tener entre 1 y 100 caracteres")
+    private String subject;
+
+    @NotEmpty(message = "El contenido no puede estar vacío")
+    @Size(min = 1, max = 10000, message = "El contenido debe tener entre 1 y 10000 caracteres")
+    private String body;
+
+    @Size(max = 100, message = "El nombre del destinatario no puede exceder 100 caracteres")
+    private String recipientName;
+
+    @Size(max = 50, message = "El texto del botón no puede exceder 50 caracteres")
+    private String buttonText;
+
+    @Pattern(regexp = "^(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?$",
+            message = "La URL del botón debe ser una URL válida",
+            flags = Pattern.Flag.CASE_INSENSITIVE)
+    private String buttonUrl;
+
+    @Size(max = 200, message = "El texto del pie no puede exceder 200 caracteres")
+    private String footerText;
+
+    public boolean isButtonConfigValid() {
+        if (buttonText != null && !buttonText.isEmpty()) {
+            return buttonUrl != null && !buttonUrl.isEmpty();
+        }
+        return true;
+    }
+}
