@@ -28,6 +28,7 @@
 		<module>gateway</module>
 		<module>minio</module>
 		<module>email</module>
+		<module>report</module>
 
 		<module>message</module>
 

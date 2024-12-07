@@ -14,6 +14,7 @@
         <module name="users" />
         <module name="products" />
         <module name="carts" />
+        <module name="report" />
         <module name="payment" />
         <module name="categories" />
         <module name="customers" />
@@ -41,6 +42,7 @@
       <module name="payment" options="-parameters" />
       <module name="products" options="-parameters" />
       <module name="rabbitmq" options="-parameters" />
+      <module name="report" options="-parameters" />
       <module name="users" options="-parameters" />
     </option>
   </component>
