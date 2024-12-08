@@ -13,13 +13,37 @@ public class RabbitMQConfig {
 
     public static final String QUEUE_NAME = "serviceQueue";
     public static final String PRODUCT_QUEUE_NAME = "productQueue";
-    public static final String PRICE_REQUEST_QUEUE_NAME = "priceRequestQueue";
     public static final String BILLING_QUEUE_NAME = "billingQueue";
     public static final String EXCHANGE_NAME = "appExchange";
     public static final String ROUTING_KEY = "routing.key";
     public static final String PRODUCT_ROUTING_KEY = "product.created";
     public static final String PRICE_ROUTING_KEY = "product.price";
     public static final String CART_BILLING_ROUTING_KEY = "billing.cart";
+
+    public static final String PRICE_REQUEST_QUEUE = "product.price.request";
+    public static final String PRICE_RESPONSE_QUEUE = "product.price.response";
+    public static final String PRICE_REQUEST_ROUTING_KEY = "product.price.request";
+    public static final String PRICE_RESPONSE_ROUTING_KEY = "product.price.response";
+
+    @Bean
+    public Queue priceRequestQueue() {
+        return new Queue(PRICE_REQUEST_QUEUE, true);
+    }
+
+    @Bean
+    public Queue priceResponseQueue() {
+        return new Queue(PRICE_RESPONSE_QUEUE, true);
+    }
+
+    @Bean
+    public Binding priceRequestBinding(Queue priceRequestQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(priceRequestQueue).to(exchange).with(PRICE_REQUEST_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding priceResponseBinding(Queue priceResponseQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(priceResponseQueue).to(exchange).with(PRICE_RESPONSE_ROUTING_KEY);
+    }
 
     @Bean
     public Queue queue() {
@@ -29,11 +53,6 @@ public class RabbitMQConfig {
     @Bean
     public Queue productQueue() {
         return new Queue(PRODUCT_QUEUE_NAME, true);
-    }
-
-    @Bean
-    public Queue priceRequestQueue() {
-        return new Queue(PRICE_REQUEST_QUEUE_NAME, true);
     }
 
     @Bean

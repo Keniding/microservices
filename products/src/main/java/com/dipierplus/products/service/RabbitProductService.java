@@ -18,17 +18,16 @@ public class RabbitProductService {
     private final RabbitTemplate rabbitTemplate;
     private final ProductRepository productRepository;
 
-    @RabbitListener(queues = "priceRequestQueue")
+    @RabbitListener(queues = "product.price.request")
     public void handlePriceRequest(ProductPriceRequestEvent request) {
         BigDecimal price = getPriceById(request.getProductId());
-
         ProductPriceResponseEvent response = new ProductPriceResponseEvent(request.getProductId(), price);
-        rabbitTemplate.convertAndSend("appExchange", "product.price", response);
+        rabbitTemplate.convertAndSend("appExchange", "product.price.response", response);
     }
 
     private BigDecimal getPriceById(String productId) {
         return productRepository.findById(productId)
-                .map(Product::getPrice)
+                .map(product -> new BigDecimal(String.valueOf(product.getPrice())))
                 .orElse(BigDecimal.ZERO);
     }
 }

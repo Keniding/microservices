@@ -157,26 +157,62 @@ public class CartServiceImpl implements CartService {
 
     private CompletableFuture<BigDecimal> rabbitEventGetPriceProduct(String productId) {
         CompletableFuture<BigDecimal> priceFuture = new CompletableFuture<>();
-        ProductPriceRequestEvent event = new ProductPriceRequestEvent(productId);
-        rabbitTemplate.convertAndSend("appExchange", "product.price", event);
 
-        priceListeners.put(productId, priceFuture);
+        CompletableFuture<BigDecimal> existingFuture = priceListeners.get(productId);
+        if (existingFuture != null && !existingFuture.isDone()) {
+            return existingFuture;
+        }
+
+        try {
+            ProductPriceRequestEvent event = new ProductPriceRequestEvent(productId);
+            priceListeners.put(productId, priceFuture);
+            rabbitTemplate.convertAndSend("appExchange", "product.price.request", event);
+
+            setTimeout(() -> {
+                if (!priceFuture.isDone()) {
+                    System.err.println("Timeout esperando precio para: " + productId);
+                    priceListeners.remove(productId);
+                    priceFuture.complete(BigDecimal.ZERO);
+                }
+            });
+
+        } catch (Exception e) {
+            System.err.println("Error enviando solicitud de precio: " + e.getMessage());
+            priceFuture.complete(BigDecimal.ZERO);
+        }
 
         return priceFuture;
     }
 
-    @RabbitListener(queues = "priceRequestQueue")
-    public void handlePriceResponse(ProductPriceResponseEvent response) {
-        CompletableFuture<BigDecimal> priceFuture = priceListeners.remove(response.getProductId());
-        if (priceFuture != null) {
-            if (response.getPrice() != null) {
-                priceFuture.complete(response.getPrice());
-            } else {
-                System.err.println("El precio es null para el producto: " + response.getProductId());
-                priceFuture.complete(BigDecimal.ZERO); // O manejar de otra forma
+    private void setTimeout(Runnable runnable) {
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000);
+                runnable.run();
+            } catch (Exception e) {
+                System.err.println("Error en timeout: " + e.getMessage());
             }
-        } else {
-            System.err.println("No se encontró el future para el producto: "+ response.getProductId());
+        }).start();
+    }
+
+    @RabbitListener(queues = "product.price.response")
+    public void handlePriceResponse(ProductPriceResponseEvent response) {
+        CompletableFuture<BigDecimal> priceFuture = priceListeners.get(response.getProductId());
+        if (priceFuture != null && !priceFuture.isDone()) {
+            try {
+                BigDecimal price = new BigDecimal(response.getPrice().toString());
+                if (price.compareTo(BigDecimal.ZERO) > 0) {
+                    priceFuture.complete(price);
+                } else {
+                    System.err.println("Precio inválido recibido: " + response.getPrice());
+                    priceFuture.complete(BigDecimal.ZERO);
+                }
+            } catch (Exception e) {
+                System.err.println("Error procesando precio: " + e.getMessage());
+                priceFuture.complete(BigDecimal.ZERO);
+            } finally {
+                priceListeners.remove(response.getProductId());
+            }
         }
     }
 
