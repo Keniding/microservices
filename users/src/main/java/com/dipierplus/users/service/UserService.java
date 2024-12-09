@@ -51,6 +51,30 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        return userRepository.save(user);
+        User existingUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + user.getId()));
+
+        if (!existingUser.getUsername().equals(user.getUsername()) &&
+                userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new RuntimeException("Ya existe un usuario con el nombre de usuario: " + user.getUsername());
+        }
+
+        if (!existingUser.getEmail().equals(user.getEmail()) &&
+                userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Ya existe un usuario con el email: " + user.getEmail());
+        }
+
+        existingUser.setUsername(user.getUsername());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setActive(user.isActive());
+        existingUser.setRole(user.getRole());
+
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            existingUser.setPassword(encoder.encode(user.getPassword()));
+        }
+
+        return userRepository.save(existingUser);
     }
+
 }
