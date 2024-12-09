@@ -2,6 +2,7 @@ package com.dipierplus.gateway.controller;
 
 import com.dipierplus.gateway.model.AuthRequest;
 import com.dipierplus.gateway.model.AuthResponse;
+import com.dipierplus.gateway.model.User;
 import com.dipierplus.gateway.security.TokenUtils;
 import com.dipierplus.gateway.security.UserDetailsImp;
 import lombok.AllArgsConstructor;
@@ -10,9 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import reactor.core.publisher.Mono;

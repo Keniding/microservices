@@ -1,12 +1,9 @@
 package com.dipierplus.users.controller;
 
 import com.dipierplus.users.model.User;
-import com.dipierplus.users.repository.UserRepository;
 import com.dipierplus.users.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/user")
@@ -19,6 +16,9 @@ public class UserController {
 
     @GetMapping(value = "/{id}")
     public User findUser(@PathVariable String id){return userService.getUser(id);}
+
+    @GetMapping(value = "/{name}/name")
+    public User findUserName(@PathVariable String name){return userService.getUserForName(name);}
 
     @PostMapping
     public void store(@RequestBody User user) {userService.createUser(user);}

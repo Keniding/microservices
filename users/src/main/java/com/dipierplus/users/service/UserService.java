@@ -19,9 +19,22 @@ public class UserService {
         return userRepository.findById(id).orElseThrow();
     }
 
+    public User getUserForName(String username) {
+        return userRepository.findByUsername(username).orElseThrow();
+    }
+
     public void createUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new RuntimeException("Ya existe un usuario con el nombre de usuario: " + user.getUsername());
+        }
+
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Ya existe un usuario con el email: " + user.getEmail());
+        }
+
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String passEncrypt = encoder.encode(user.getPassword());
+
         User userBuilder = User.builder()
                 .username(user.getUsername())
                 .email(user.getEmail())
@@ -29,6 +42,7 @@ public class UserService {
                 .active(user.isActive())
                 .role(user.getRole())
                 .build();
+
         userRepository.save(userBuilder);
     }
 
