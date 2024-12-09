@@ -19,7 +19,7 @@ public class UserService {
         return userRepository.findById(id).orElseThrow();
     }
 
-    public User createUser(User user) {
+    public void createUser(User user) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String passEncrypt = encoder.encode(user.getPassword());
         User userBuilder = User.builder()
@@ -27,8 +27,9 @@ public class UserService {
                 .email(user.getEmail())
                 .password(passEncrypt)
                 .active(user.isActive())
+                .role(user.getRole())
                 .build();
-        return userRepository.save(userBuilder);
+        userRepository.save(userBuilder);
     }
 
     public void deleteUser(String id) {

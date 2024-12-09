@@ -30,8 +30,6 @@
 		<module>email</module>
 		<module>report</module>
 
-		<module>message</module>
-
 		<!-- Carrito -->
 		<module>carts</module>
 		<module>payment</module>
