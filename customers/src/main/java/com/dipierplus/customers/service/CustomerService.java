@@ -44,20 +44,34 @@ public class CustomerService {
     }
 
     public void updateCustomer(String id, CustomerRequest customerRequest) {
-        if (getCustomer(id, false) == null) {
+        Optional<Customer> existingCustomerOpt = customerRepository.findById(id);
+        if (existingCustomerOpt.isEmpty()) {
             log.error("Error updating customer, customer not found {}", id);
             return;
         }
 
         try {
-            Customer customer = mapToCustomer(customerRequest);
-            customer.setId(id);
-            customer.updateLastVisit();
-            customerRepository.save(customer);
+            Customer existingCustomer = getExistingCustomer(customerRequest, existingCustomerOpt);
+
+            customerRepository.save(existingCustomer);
             log.info("Customer {} updated successfully", id);
         } catch (Exception e) {
             log.error("Error updating customer {}", id, e);
         }
+    }
+
+    private static Customer getExistingCustomer(CustomerRequest customerRequest, Optional<Customer> existingCustomerOpt) {
+        Customer existingCustomer = existingCustomerOpt.get();
+        existingCustomer.setFirstName(customerRequest.getFirstName());
+        existingCustomer.setLastName(customerRequest.getLastName());
+        existingCustomer.setEmail(customerRequest.getEmail());
+        existingCustomer.setPhoneNumber(customerRequest.getPhoneNumber());
+        existingCustomer.setDateOfBirth(customerRequest.getDateOfBirth());
+        existingCustomer.setAddress(customerRequest.getAddress());
+        existingCustomer.setAllergies(customerRequest.getAllergies());
+        existingCustomer.setChronicConditions(customerRequest.getChronicConditions());
+        existingCustomer.updateLastVisit();
+        return existingCustomer;
     }
 
     public void deleteCustomer(String id) {
