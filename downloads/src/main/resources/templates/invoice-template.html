@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura - DiPier Plus</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .company-info {
+            text-align: right;
+        }
+
+        .invoice-details {
+            margin-bottom: 30px;
+        }
+
+        .table-container {
+            margin: 30px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+        }
+
+        .totals {
+            margin-top: 30px;
+            text-align: right;
+        }
+
+        .total-amount {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .payment-info {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+<div class="invoice-container">
+    <!-- Encabezado -->
+    <div class="header">
+        <div class="logo">
+            <h1>DiPier Plus</h1>
+        </div>
+        <div class="company-info">
+            <h2>FACTURA</h2>
+            <p>Nº: <span th:text="${invoiceDetails.invoice.id}"></span></p>
+            <p>Fecha: <span th:text="${#temporals.format(invoiceDetails.invoice.paymentDate, 'dd/MM/yyyy')}"></span></p>
+        </div>
+    </div>
+
+    <!-- Detalles del Cliente -->
+    <div class="invoice-details">
+        <h3>Cliente</h3>
+        <p>ID: <span th:text="${invoiceDetails.invoice.customerId}"></span></p>
+    </div>
+
+    <!-- Tabla de Productos -->
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Subtotal</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${invoiceDetails.products}">
+                <td th:text="${product.name}"></td>
+                <td th:text="${product.description}"></td>
+                <td th:text="${product.quantity}"></td>
+                <td th:text="${'S/. ' + #numbers.formatDecimal(product.price, 1, 2)}"></td>
+                <td th:text="${'S/. ' + #numbers.formatDecimal(product.subtotal, 1, 2)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Totales -->
+    <div class="totals">
+        <p class="total-amount">Total: S/. <span th:text="${#numbers.formatDecimal(total, 1, 2)}"></span></p>
+    </div>
+
+    <!-- Información de Pago -->
+    <div class="payment-info">
+        <h3>Información de Pago</h3>
+        <p>Estado: <span th:text="${invoiceDetails.invoice.status}"></span></p>
+        <p>Fecha de Pago: <span th:text="${#temporals.format(invoiceDetails.paymentHistory.paymentDate, 'dd/MM/yyyy')}"></span></p>
+    </div>
+
+    <!-- Pie de Página -->
+    <div class="footer">
+        <p>Gracias por su compra</p>
+        <p>DiPier Plus - Tecnología a tu alcance</p>
+    </div>
+</div>
+</body>
+</html>

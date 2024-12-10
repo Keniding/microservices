@@ -21,6 +21,15 @@
         <module name="gateway" />
         <module name="email" />
       </profile>
+      <profile name="Annotation profile for microservices" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="downloads" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="message" target="17" />
@@ -32,6 +41,7 @@
       <module name="carts" options="-parameters" />
       <module name="categories" options="-parameters" />
       <module name="customers" options="-parameters" />
+      <module name="downloads" options="-parameters" />
       <module name="email" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="inventory" options="-parameters" />

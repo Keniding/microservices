@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cotización - DiPier Plus</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #4f46e5;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .quote-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .quote-number {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .client-info {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+
+        .products-table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .products-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .totals {
+            margin-top: 30px;
+            text-align: right;
+        }
+
+        .total-amount {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .terms {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .validity {
+            margin-top: 20px;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+<div class="quote-container">
+    <!-- Encabezado -->
+    <div class="header">
+        <div class="logo">
+            <h1>DiPier Plus</h1>
+        </div>
+        <div>
+            <h2>COTIZACIÓN</h2>
+            <p class="quote-number">Nº: <span th:text="${quoteData.quoteNumber}"></span></p>
+            <p>Fecha: <span th:text="${#temporals.format(quoteData.date, 'dd/MM/yyyy')}"></span></p>
+        </div>
+    </div>
+
+    <!-- Información del Cliente -->
+    <div class="client-info">
+        <h3>Información del Cliente</h3>
+        <p>Nombre: <span th:text="${quoteData.clientName}"></span></p>
+        <p>Email: <span th:text="${quoteData.clientEmail}"></span></p>
+        <p>Teléfono: <span th:text="${quoteData.clientPhone}"></span></p>
+    </div>
+
+    <!-- Tabla de Productos -->
+    <table class="products-table">
+        <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Cantidad</th>
+            <th>Precio Unit.</th>
+            <th>Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${quoteData.items}">
+            <td th:text="${item.productName}"></td>
+            <td th:text="${item.description}"></td>
+            <td th:text="${item.quantity}"></td>
+            <td th:text="${'S/. ' + #numbers.formatDecimal(item.unitPrice, 1, 2)}"></td>
+            <td th:text="${'S/. ' + #numbers.formatDecimal(item.subtotal, 1, 2)}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Totales -->
+    <div class="totals">
+        <p>Subtotal: S/. <span th:text="${#numbers.formatDecimal(quoteData.subtotal, 1, 2)}"></span></p>
+        <p>IGV (18%): S/. <span th:text="${#numbers.formatDecimal(quoteData.igv, 1, 2)}"></span></p>
+        <p class="total-amount">Total: S/. <span th:text="${#numbers.formatDecimal(quoteData.total, 1, 2)}"></span></p>
+    </div>
+
+    <!-- Términos y Condiciones -->
+    <div class="terms">
+        <h3>Términos y Condiciones</h3>
+        <ul>
+            <li>Esta cotización tiene una validez de 15 días.</li>
+            <li>Los precios están sujetos a cambios sin previo aviso.</li>
+            <li>Los tiempos de entrega serán confirmados al momento de la orden.</li>
+            <li>Forma de pago: <span th:text="${quoteData.paymentTerms}"></span></li>
+        </ul>
+    </div>
+
+    <div class="validity">
+        <p>Válido hasta: <span th:text="${#temporals.format(quoteData.validUntil, 'dd/MM/yyyy')}"></span></p>
+    </div>
+
+    <!-- Pie de Página -->
+    <div class="footer">
+        <p>DiPier Plus</p>
+        <p>Tecnología a tu alcance</p>
+        <p>Teléfono: +51 999 999 999 | Email: ventas@dipierplus.com</p>
+    </div>
+</div>
+</body>
+</html>

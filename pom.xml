@@ -29,6 +29,7 @@
 		<module>minio</module>
 		<module>email</module>
 		<module>report</module>
+		<module>downloads</module>
 
 		<!-- Carrito -->
 		<module>carts</module>
