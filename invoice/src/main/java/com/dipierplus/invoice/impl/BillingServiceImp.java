@@ -44,7 +44,21 @@ public class BillingServiceImp implements BillingService {
         if (invoice == null || invoice.getCustomerId() == null) {
             throw new IllegalArgumentException("Invoice or customer ID cannot be null.");
         }
-        return invoiceRepository.save(invoice);
+
+        invoice.setId(null);
+
+        logger.info("Guardando factura: {}", invoice);
+
+        Invoice savedInvoice = invoiceRepository.save(invoice);
+
+        logger.info("Factura guardada: {}", savedInvoice);
+
+        if (savedInvoice.getId() == null) {
+            logger.error("MongoDB no generó ID para la factura");
+            throw new RuntimeException("Error al generar ID de factura");
+        }
+
+        return savedInvoice;
     }
 
     @Override
