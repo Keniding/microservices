@@ -108,13 +108,27 @@ public class BillingServiceImp implements BillingService {
                     return;
                 }
 
-                logger.info("Total recibido del carrito: {}", cartTotal);
+                Optional<Invoice> pendingInvoice = Optional.ofNullable(invoiceRepository.findByCustomerIdAndStatus(
+                        response.getCustomerId(),
+                        "PENDING"
+                ));
 
-                Invoice invoice = new Invoice();
-                invoice.setCustomerId(response.getCustomerId());
-                invoice.setTotalAmount(cartTotal);
-                invoice.setPaymentDate(LocalDateTime.now());
-                invoice.setStatus("PAGADO");
+                Invoice invoice;
+                if (pendingInvoice.isPresent()) {
+                    // Actualizar factura existente
+                    invoice = pendingInvoice.get();
+                    invoice.setStatus("PAGADO");
+                    invoice.setTotalAmount(cartTotal);
+                    invoice.setPaymentDate(LocalDateTime.now());
+                } else {
+                    // Crear nueva factura solo si no existe una pendiente
+                    invoice = new Invoice();
+                    invoice.setCustomerId(response.getCustomerId());
+                    invoice.setTotalAmount(cartTotal);
+                    invoice.setPaymentDate(LocalDateTime.now());
+                    invoice.setStatus("PAGADO");
+                }
+
                 invoiceRepository.save(invoice);
 
                 PaymentHistory paymentHistory = new PaymentHistory();

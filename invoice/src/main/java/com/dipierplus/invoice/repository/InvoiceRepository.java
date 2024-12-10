@@ -7,4 +7,5 @@ import java.util.ArrayList;
 
 public interface InvoiceRepository extends MongoRepository<Invoice, String> {
     ArrayList<Invoice> findByCustomerId(String customerId);
+    Invoice findByCustomerIdAndStatus(String customerId, String status);
 }
