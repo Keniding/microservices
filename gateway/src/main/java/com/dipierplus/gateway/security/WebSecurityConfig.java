@@ -3,6 +3,7 @@ package com.dipierplus.gateway.security;
 import com.dipierplus.gateway.component.LoggingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
@@ -34,13 +35,21 @@ public class WebSecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/gt/login", "/public/**").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/user").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/gt/login").permitAll()
+                        .pathMatchers("/public/**").permitAll()
                         .anyExchange().authenticated()
                 )
-                .addFilterAt(jwtAuthorizationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-                .addFilterBefore(new LoggingFilter(), SecurityWebFiltersOrder.FIRST)
                 .addFilterAt(corsWebFilter(), SecurityWebFiltersOrder.CORS)
+                .addFilterAt(new JwtAuthenticationWebFilter(reactiveAuthenticationManager()), SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAfter(jwtAuthorizationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterBefore(new LoggingFilter(), SecurityWebFiltersOrder.FIRST)
                 .build();
+    }
+
+    @Bean
+    public JwtAuthenticationWebFilter jwtAuthenticationWebFilter() {
+        return new JwtAuthenticationWebFilter(reactiveAuthenticationManager());
     }
 
     @Bean

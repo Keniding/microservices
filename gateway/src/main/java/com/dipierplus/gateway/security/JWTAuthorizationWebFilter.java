@@ -24,7 +24,11 @@ public class JWTAuthorizationWebFilter implements WebFilter {
     @Override
     public @NonNull Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
-        if (path.startsWith("/gt/login") || path.startsWith("/public/")) {
+        if (
+                path.startsWith("/gt/login") ||
+                path.startsWith("/public/") ||
+                path.startsWith("/api/user")
+        ) {
             return chain.filter(exchange);
         }
 
