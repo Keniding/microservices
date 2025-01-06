@@ -5,6 +5,7 @@ import com.dipierplus.gateway.model.AuthResponse;
 import com.dipierplus.gateway.model.User;
 import com.dipierplus.gateway.security.TokenUtils;
 import com.dipierplus.gateway.security.UserDetailsImp;
+import com.dipierplus.gateway.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class AuthController {
 
+    private final UserService userService;
     private final ReactiveAuthenticationManager authenticationManager;
     private static final Logger LOGGER = Logger.getLogger(AuthRequest.class.getName());
 
@@ -40,6 +42,17 @@ public class AuthController {
                 .onErrorResume(AuthenticationException.class, e -> {
                     LOGGER.log(Level.WARNING, "Authentication failed for user: " + authRequest.getUsername());
                     return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+                });
+    }
+
+    @PostMapping("/gt/register")
+    public Mono<ResponseEntity<User>> store(@RequestBody User user) {
+        return userService.createUser(user)
+                .map(ResponseEntity::ok)
+                .doOnSuccess(response -> LOGGER.info("Usuario registrado exitosamente: " + user.getUsername()))
+                .onErrorResume(e -> {
+                    LOGGER.severe("Error en el registro: " + e.getMessage());
+                    return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
                 });
     }
 }

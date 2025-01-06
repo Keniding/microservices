@@ -26,8 +26,9 @@ public class JWTAuthorizationWebFilter implements WebFilter {
         String path = exchange.getRequest().getURI().getPath();
         if (
                 path.startsWith("/gt/login") ||
-                path.startsWith("/public/") ||
-                path.startsWith("/api/user")
+                path.startsWith("/gt/register") ||
+                path.startsWith("/public/") //||
+              //  path.startsWith("/api/user")
         ) {
             return chain.filter(exchange);
         }

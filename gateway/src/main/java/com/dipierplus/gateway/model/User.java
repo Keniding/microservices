@@ -1,5 +1,6 @@
 package com.dipierplus.gateway.model;
 
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,11 +10,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+@Builder
 @Document("users")
 @Data
 public class User implements UserDetails {
+    @Id
+    private String id;
     private String username;
     private String password;
+    private String email;
     private boolean active;
     private String role;
 

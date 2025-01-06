@@ -35,7 +35,8 @@ public class WebSecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers(HttpMethod.POST, "/api/user").permitAll()
+                        //.pathMatchers(HttpMethod.POST, "/api/user").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/gt/register").permitAll()
                         .pathMatchers(HttpMethod.POST, "/gt/login").permitAll()
                         .pathMatchers("/public/**").permitAll()
                         .anyExchange().authenticated()
