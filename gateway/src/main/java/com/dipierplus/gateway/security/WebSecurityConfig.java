@@ -1,9 +1,11 @@
 package com.dipierplus.gateway.security;
 
 import com.dipierplus.gateway.component.LoggingFilter;
+import com.dipierplus.gateway.component.UserStatusFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
@@ -29,6 +31,7 @@ public class WebSecurityConfig {
 
     private final JWTAuthorizationWebFilter jwtAuthorizationFilter;
     private final ReactiveUserDetailsService userDetailsService;
+    private final UserStatusFilter userStatusFilter;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -45,6 +48,7 @@ public class WebSecurityConfig {
                 .addFilterAt(new JwtAuthenticationWebFilter(reactiveAuthenticationManager()), SecurityWebFiltersOrder.AUTHENTICATION)
                 .addFilterAfter(jwtAuthorizationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .addFilterBefore(new LoggingFilter(), SecurityWebFiltersOrder.FIRST)
+                .addFilterAt(userStatusFilter, SecurityWebFiltersOrder.AUTHORIZATION)
                 .build();
     }
 

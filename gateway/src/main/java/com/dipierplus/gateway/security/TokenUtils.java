@@ -24,12 +24,32 @@ public class TokenUtils {
         return Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
 
+    public static Claims getClaims(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(SIGNINGKEY)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (JwtException e) {
+            System.err.println("Invalid JWT token: " + e.getMessage());
+            throw e;
+        }
+    }
+
     public static String createAccessToken(UserDetailsImp user) {
         long expirationTime = System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS * 1_000;
         Date expirationDate = new Date(expirationTime);
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("user", user);
+        claims.put("username", user.getUsername());
+        claims.put("active", user.isEnabled());
+        claims.put("email", user.getEmail());
+        claims.put("role", user.getRole());
         claims.put("expirationDate", expirationDate);
 
         return Jwts.builder()
@@ -53,9 +73,15 @@ public class TokenUtils {
                     .getBody();
 
             String username = claims.getSubject();
+            Boolean active = claims.get("active", Boolean.class);
 
             if (username == null || username.isEmpty()) {
                 throw new JwtException("JWT token does not contain a valid subject");
+            }
+
+            // Verificar si la cuenta está activa
+            if (active == null || !active) {
+                throw new JwtException("Account is not active");
             }
 
             return new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());

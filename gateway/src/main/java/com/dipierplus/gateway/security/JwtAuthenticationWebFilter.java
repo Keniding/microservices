@@ -86,17 +86,24 @@ public class JwtAuthenticationWebFilter implements WebFilter {
     }
 
     private Mono<Void> onAuthenticationSuccess(ServerWebExchange exchange, Authentication authentication) {
+        UserDetailsImp userDetails = (UserDetailsImp) authentication.getPrincipal();
+
+        if (!userDetails.isEnabled()) {
+            return onAuthenticationError(exchange,
+                    new AuthenticationCredentialsNotFoundException("Account is not active"));
+        }
+
         LOGGER.info("Authentication successful for user: " + authentication.getName());
 
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.OK);
 
-        UserDetailsImp userDetails = (UserDetailsImp) authentication.getPrincipal();
         String token = TokenUtils.createAccessToken(userDetails);
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("token", token);
         responseBody.put("username", userDetails.getUsername());
+        responseBody.put("active", userDetails.isEnabled());
         responseBody.put("message", "Authentication successful");
 
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
